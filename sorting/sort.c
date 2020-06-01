@@ -1,7 +1,7 @@
 
 #include <stdlib.h>
 #include <stdio.h>
-#include "sort.h"
+#include "sort.h" 
 
 int main(int argc, char * *argv) {
 	char * filename;
@@ -16,11 +16,11 @@ int main(int argc, char * *argv) {
 	// read in file
 	List * list = read_file(filename);
 
-	// list = insertion_sort(list);
-	list = mergesort(list);
+	list = insertion_sort(list);
+	// list = mergesort(list);
 
 	// test list
-	// print_list(list);
+	print_list(list);
 
 	// check to see if sorted 
 	check_sortedness(list);
@@ -39,20 +39,30 @@ List * mergesort(List * list) {
 
 	List * temp = list;
 	List * right = list;
-
+	List * right_prev;
 	while (temp != NULL && temp -> next != NULL) {
 		temp = temp -> next -> next;
+		right_prev = right;
 		right = right -> next;
 	}
 
-	right -> prev -> next = NULL;
-	right -> prev = NULL;
+	right_prev -> next = NULL;
 
 	list = mergesort(list);
 	right = mergesort(right);
 
 	return merge(list, right);
 
+}
+
+List * mergesort_iter(List * list) {
+	// perform mergesort iteratively
+	return NULL; 	// compile
+}
+
+List * merge_iter(List * left, List * right) {
+	// perform merge iteratively
+	return NULL;
 }
 
 List * merge(List * left, List * right) {
@@ -63,14 +73,10 @@ List * merge(List * left, List * right) {
 
 	if (left -> val < right -> val) {
 		left -> next = merge(left -> next, right);
-		left -> next -> prev = left;
-		left -> prev = NULL;
 		return left;
 	}
 	else {
 		right -> next = merge(left, right -> next);
-		right -> next -> prev = right;
-		right -> prev = NULL;
 		return right;
 	}
 }
@@ -85,12 +91,6 @@ void print_list(List * list) {
 		printf("%d\n", l -> next -> val);
 		l = l -> next;
 	}
-
-	printf("\n\nprinting contents of list BACKWARDS\n");
-	while (l != NULL) {
-		printf("%d\n", l -> val);
-		l = l -> prev;
-	}
 }
 
 void check_sortedness(List * list) {
@@ -98,8 +98,10 @@ void check_sortedness(List * list) {
 	int prev = list -> val;
 	list = list -> next;
 	while (list != NULL) {
-		if (list -> val < prev)
+		if (list -> val < prev) {
 			printf("The list is NOT sorted");
+			return;
+		}
 		list = list -> next;
 	}
 	printf("The list is sorted\n");
@@ -113,60 +115,29 @@ List * insertion_sort(List * list) {
 	
 	// insert values from unsorted 1 by 1 into sorted
 	while (list != NULL) {
-		List * next = list -> next;
-		insert(&sorted, list);
-		list = next;
+		// pull a node
+		List * pulled_node = list;
+		list = list -> next;
+		// cut link
+		pulled_node -> next = NULL;
+
+		// find insertion point
+		List * insertion_point = sorted;
+		List * insertion_point_prev = NULL;
+		while (insertion_point != NULL && insertion_point -> val < pulled_node -> val) {
+			insertion_point_prev = insertion_point;
+			insertion_point = insertion_point -> next;
+		}
+
+		if (insertion_point_prev != NULL) 
+			insertion_point_prev -> next = pulled_node;
+		else
+			sorted = pulled_node;
+
+		pulled_node -> next = insertion_point;
+
 	}
 	return sorted;
-}
-
-void insert(List ** result_list, List * input_node) {
-	// cut input_node from rest of list
-	input_node -> prev = NULL;
-	input_node -> next = NULL;
-	List * insert_point = *result_list;
-	List * insert_point_prev = NULL;
-	// find insertion point
-	while (input_node -> val > insert_point -> val) {
-		insert_point_prev = insert_point;
-		insert_point = insert_point -> next;
-		if (insert_point == NULL)
-			break;
-	}
-	// perform insertion
-
-	// handle ancestor node
-	if (insert_point_prev != NULL) {
-		insert_point_prev -> next = input_node;
-		input_node -> prev = insert_point_prev;
-		
-	}
-	else {
-		* result_list = input_node;
-	}
-
-	// handle child node
-	if (insert_point != NULL) {
-		input_node -> next = insert_point;
-		insert_point -> prev = input_node;
-	}
-	else {
-		insert_point_prev -> next = input_node;
-	}
-
-
-}
-
-void swap(List * node1, List * node2) {
-	// swap by value
-	List * ancestor1 = node1 -> prev;
-	List * ancestor2 = node2 -> prev;
-	List * child1 = node1 -> next;
-	List * child2 = node2 -> next;
-	ancestor1 -> next = node2;
-	node2 -> next = child1;
-	ancestor2 -> next = child1;
-	node1 -> next = child2;
 }
 
 void free_list(List * l) {
@@ -196,13 +167,11 @@ List * read_file(char * filename) {
 		if (list == NULL) {
 			list = malloc(sizeof(List));
 			list -> val = this_num;
-			list -> prev = NULL;
 			prev = list;
 		}
 		else {
 			List * this = malloc(sizeof(List));
 			this -> val = this_num;
-			this -> prev = prev;
 			prev -> next = this;
 			prev = this;
 		}
