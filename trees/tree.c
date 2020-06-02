@@ -25,7 +25,8 @@ int main(int argc, char * * argv) {
 }
 
 Tree * read_tree(char * filename) {
-	// build BST from 
+	// build BST from file
+
 	FILE * fptr = fopen(filename, "r");
 	if (fptr == NULL) {
 		fprintf(stderr, "%s\n", "fopen fail");

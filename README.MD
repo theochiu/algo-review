@@ -16,9 +16,8 @@ A review of important algorithms and data structures, implemented in C and Pytho
  - manacher's palindrome algorithm
  - edit distance
  - longest common subsequence
+ - fibonacci
 
 ### Trees
  - binary search
  - AVL tree
- - 
-
