@@ -18,10 +18,13 @@ sys.setrecursionlimit(150000)
 
 # bottom up implementation (tabulation)
 def fib1(n):
-	tab = [0, 1]
+	tab = [0, 1, 0]
 	for i in range(2, n+1):
-		tab.append(tab[i-1] + tab[i-2])
-	return tab[n]
+		tab[2] = tab[0] + tab[1]
+		# shift
+		tab[0] = tab[1]
+		tab[1] = tab[2]
+	return tab[2]
 
 
 # top down implementation (memoizaton)
